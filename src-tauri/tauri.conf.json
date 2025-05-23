@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "league-manager",
+  "productName": "Distort",
   "version": "0.1.0",
-  "identifier": "com.nataly.leaguemanager",
+  "identifier": "com.nataly.Distort",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "league-manager",
+        "title": "Distort",
         "width": 800,
         "height": 600,
         "resizable": true,

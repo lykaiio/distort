@@ -93,34 +93,28 @@ const App = () => {
       )}
       <div className="absolute inset-0 ring-inset ring-2 ring-black/20 pointer-events-none z-10" />
 
-      <div className="relative z-20 flex justify-end mb-4 space-x-4">
-        <ThemedButton
-          text={isDarkMode ? "🌑 Dark" : "🌕 Light"}
-          onClick={toggleTheme}
-          isDarkMode={isDarkMode}
-        />
-        <ThemedButton text="⟳" onClick={() => {}} isDarkMode={isDarkMode} />
+      <div className="relative px-4 z-20 flex justify-between items-center mb-4">
+        <div>
+          <p
+            className={`smooth-transition text-3xl font-sans font-bold ${
+              isDarkMode ? "text-dark-text" : "text-light-text"
+            }`}
+          >
+            Distort
+          </p>
+        </div>
+
+        <div className="flex space-x-4">
+          <ThemedButton
+            text={isDarkMode ? "🌑 Dark" : "🌕 Light"}
+            onClick={toggleTheme}
+            isDarkMode={isDarkMode}
+          />
+          <ThemedButton text="⟳" onClick={() => {}} isDarkMode={isDarkMode} />
+        </div>
       </div>
 
-      <div className="pl-4 flex flex-row items-center space-x-4 mb-2">
-        <p
-          className={`smooth-transition text-2xl font-sans font-bold ${
-            isDarkMode ? "text-dark-text" : "text-light-text"
-          }`}
-        >
-          Add Account
-        </p>
-        <span
-          className={`text-sm font-sans font-medium smooth-transition ${
-            isDarkMode ? "" : "text-light-text"
-          }`}
-          style={isDarkMode ? { color: "#00FF9C" } : {}}
-        >
-          *Not affiliated with Riot Games
-        </span>
-      </div>
-
-      <div className="relative z-20 pl-4 flex flex-col justify-start items-start space-y-2">
+      <div className="relative z-20 px-4 flex flex-col justify-start items-start space-y-2">
         <div className="flex flex-wrap gap-2 w-full">
           <ThemedInput
             placeholder="Username Login"
