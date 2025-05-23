@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS accounts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  login TEXT NOT NULL,
+  riotId TEXT NOT NULL,
+  region TEXT NOT NULL,
+  password TEXT NOT NULL,
+  rank TEXT DEFAULT 'Unranked',
+  lp TEXT DEFAULT '0 LP',
+  winRate TEXT DEFAULT '0%',
+  imageSrc TEXT DEFAULT 'Unranked.webp'
+);

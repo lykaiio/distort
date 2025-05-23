@@ -1,4 +1,5 @@
-import { useState } from "react";
+import axios from "axios";
+import { useState, useEffect } from "react";
 import AccountCard from "./components/AccountCard";
 import ThemedInput from "./components/ThemedInput";
 import ThemedSelect from "./components/ThemedSelect";
@@ -14,62 +15,65 @@ const App = () => {
   const [newRegion, setNewRegion] = useState("NA");
   const [newPassword, setNewPassword] = useState("");
 
-  const [accounts, setAccounts] = useState([
-    {
-      imageSrc: "Silver.webp",
-      riotId: "ShadowAssassin#NA1",
-      login: "shadow_main_2019",
-      password: "securepass123",
-      rank: "Silver III",
-      lp: "47 LP",
-      winRate: "64%",
-    },
-    {
-      imageSrc: "Gold.webp",
-      riotId: "DragonSlayer#EUW",
-      login: "dragonkiller99",
-      password: "dragonsrule!",
-      rank: "Gold II",
-      lp: "73 LP",
-      winRate: "58%",
-    },
-    {
-      imageSrc: "Platinum.webp",
-      riotId: "MidLaneGod#KR",
-      login: "yasuo_main_kr",
-      password: "slicewind2024",
-      rank: "Platinum IV",
-      lp: "12 LP",
-      winRate: "71%",
-    },
-  ]);
+  const [accounts, setAccounts] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:4000/api/accounts")
+      .then((res) => {
+        console.log("GET /api/accounts response:", res.data); // log the data
+        setAccounts(res.data);
+      })
+      .catch((err) => {
+        console.error("Failed to load accounts:", err);
+      });
+  }, []);
 
   const addAccount = () => {
     if (!newLogin || !newRiotId || !newTag || !newPassword) return;
 
     const newAccount = {
-      imageSrc: "Unranked.webp",
-      riotId: `${newRiotId}#${newTag}`,
       login: newLogin,
+      riotId: `${newRiotId}#${newTag}`,
+      region: newRegion,
       password: newPassword,
       rank: "Unranked",
       lp: "0 LP",
       winRate: "0%",
+      imageSrc: "Unranked.webp",
     };
 
-    setAccounts([...accounts, newAccount]);
-    setNewLogin("");
-    setNewRiotId("");
-    setNewTag("");
-    setNewRegion("NA");
-    setNewPassword("");
+    axios
+      .post("http://localhost:4000/api/accounts", newAccount)
+      .then((res) => {
+        const accountData = res.data;
+        if (!Array.isArray(accounts)) {
+          console.error("Expected accounts to be an array", accounts);
+          return;
+        }
+        setAccounts([...accounts, accountData]);
+        setNewLogin("");
+        setNewRiotId("");
+        setNewTag("");
+        setNewRegion("NA");
+        setNewPassword("");
+      })
+      .catch((err) => {
+        console.error("Failed to add account:", err);
+      });
   };
 
   const handleCopy = (text) => navigator.clipboard.writeText(text);
-
-  const handleDelete = (index) => {
+  const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this account?")) {
-      setAccounts((prev) => prev.filter((_, i) => i !== index));
+      axios
+        .delete(`http://localhost:4000/api/accounts/${id}`)
+        .then(() => {
+          setAccounts((prev) => prev.filter((acc) => acc.id !== id));
+        })
+        .catch((err) => {
+          console.error("Failed to delete account:", err);
+        });
     }
   };
 
@@ -179,10 +183,9 @@ const App = () => {
               {accounts.length > 0 ? (
                 accounts.map((account, index) => (
                   <AccountCard
-                    key={index}
+                    key={account.id}
                     {...account}
-                    index={index}
-                    handleDelete={handleDelete}
+                    handleDelete={() => handleDelete(account.id)}
                     handleCopy={handleCopy}
                     isDarkMode={isDarkMode}
                   />

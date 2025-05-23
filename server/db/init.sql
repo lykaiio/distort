@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS accounts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  riotId TEXT NOT NULL,
+  login TEXT NOT NULL,
+  password TEXT NOT NULL,
+  rank TEXT,
+  lp TEXT,
+  winRate TEXT
+);
