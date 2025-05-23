@@ -3,22 +3,30 @@ import { useState } from "react";
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
+  const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   const ThemedButton = ({ text }) => (
     <button
-      className={`smooth-transition px-8 py-2 font-bold border-2 shadow flex-shrink-0
-        ${
-          isDarkMode
-            ? "bg-dark-secondary border-dark-light text-dark-text hover:bg-gradient-to-t hover:from-cyan-400/50 hover:via-blue-500/10 hover:to-transparent hover:backdrop-blur-lg hover:shadow-2xl hover:shadow-cyan-500/5"
-            : "bg-light-light border-light-black text-light-text"
-        }
-      `}
+      className={`smooth-transition px-8 py-2 font-bold border-2 shadow flex-shrink-0 ${
+        isDarkMode
+          ? "bg-dark-secondary border-dark-light text-dark-text hover:bg-gradient-to-t hover:from-cyan-400/50 hover:via-blue-500/10 hover:to-transparent hover:backdrop-blur-lg hover:shadow-2xl hover:shadow-cyan-500/5"
+          : "bg-light-light border-light-black text-light-text"
+      }`}
     >
       {text}
     </button>
+  );
+
+  const ThemedInput = ({ placeholder, type = "text" }) => (
+    <input
+      type={type}
+      placeholder={placeholder}
+      className={`smooth-transition font-sans p-2 border-2 flex-grow shadow ${
+        isDarkMode
+          ? "bg-dark-secondary text-dark-text border-dark-light"
+          : "bg-light-secondary text-light-text border-light-black"
+      }`}
+    />
   );
 
   return (
@@ -29,7 +37,6 @@ const App = () => {
           : "bg-gradient-to-t from-light-secondary to-light-darkest"
       }`}
     >
-      {/* Mirror edges (only in dark mode) */}
       {isDarkMode && (
         <>
           <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-cyan-400/25 via-blue-500/10 to-transparent backdrop-blur-lg z-10 pointer-events-none animate-pulse shadow-2xl shadow-cyan-500/5" />
@@ -37,19 +44,16 @@ const App = () => {
         </>
       )}
 
-      {/* Vignette ring */}
       <div className="absolute inset-0 ring-inset ring-2 ring-black/20 pointer-events-none z-10" />
 
       <div className="relative z-20 flex justify-end mb-4">
         <button
           onClick={toggleTheme}
-          className={`smooth-transition px-6 py-2 text-xl font-bold border-2 shadow box-border min-w-[120px] text-center
-    ${
-      isDarkMode
-        ? "bg-dark-secondary border-dark-light text-dark-text hover:bg-gradient-to-t hover:from-cyan-400/35 hover:via-blue-500/10 hover:to-transparent hover:backdrop-blur-lg hover:shadow-2xl hover:shadow-cyan-500/5"
-        : "bg-light-light border-light-black text-light-text"
-    }
-  `}
+          className={`smooth-transition px-6 py-2 text-xl font-bold border-2 shadow box-border min-w-[120px] text-center ${
+            isDarkMode
+              ? "bg-dark-secondary border-dark-light text-dark-text hover:bg-gradient-to-t hover:from-cyan-400/35 hover:via-blue-500/10 hover:to-transparent hover:backdrop-blur-lg hover:shadow-2xl hover:shadow-cyan-500/5"
+              : "bg-light-light border-light-black text-light-text"
+          }`}
         >
           {isDarkMode ? "🌑 Dark" : "🌕 Light"}
         </button>
@@ -63,7 +67,6 @@ const App = () => {
         >
           Add Account
         </p>
-
         <span
           className={`text-sm font-sans font-medium smooth-transition ${
             isDarkMode ? "" : "text-light-text"
@@ -75,25 +78,14 @@ const App = () => {
       </div>
 
       <div className="relative z-20 pl-4 flex flex-col justify-start items-start space-y-2">
-        <input
-          className={`smooth-transition font-sans border-2 p-2 w-9/10 shadow ${
-            isDarkMode
-              ? "bg-dark-secondary text-dark-text border-dark-light"
-              : "bg-light-secondary text-light-text border-light-black"
-          }`}
-          placeholder="Username"
-        />
+        <div className="flex w-9/10 flex-row space-x-2">
+          <ThemedInput placeholder="Username Login" />
+          <ThemedInput placeholder="Riot" />
+          <ThemedInput placeholder="#Tag" />
+        </div>
 
         <div className="flex w-9/10 flex-row space-x-2">
-          <input
-            className={`smooth-transition font-sans p-2 border-2 flex-grow shadow ${
-              isDarkMode
-                ? "bg-dark-secondary text-dark-text border-dark-light"
-                : "bg-light-secondary text-light-text border-light-black"
-            }`}
-            placeholder="Password"
-          />
-
+          <ThemedInput placeholder="Password" type="password" />
           <ThemedButton text="Add" />
         </div>
 
