@@ -25,21 +25,6 @@ Distort is built using a modern full-stack setup designed for speed, security, a
 - **Desktop Shell**: [Tauri](https://tauri.app/) (lightweight and secure)
 - **Package Management**: npm + Cargo (for Tauri)
 
-The project is fully open source and designed to be transparent and hackable — ideal for tinkerers and privacy-conscious players.
-
----
-
-## 📁 Project Structure
-
-distort/
-├── src/ # React frontend
-├── server/ # Express backend with SQLite
-├── src-tauri/ # Tauri configuration and native build files
-├── icons/ # App icons
-├── package.json
-
----
-
 ## 📝 License
 
 MIT License.  
