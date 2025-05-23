@@ -1,10 +1,11 @@
 {
-  "name": "Distort",
+  "name": "distort",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:both": "concurrently \"vite\" \"node server/server.js\"",
     "build": "vite build",
     "tauri": "tauri",
     "lint": "eslint .",

@@ -1,12 +1,46 @@
-# React + Vite
+# Distort
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Distort** is a lightweight, open source desktop app for managing your Riot accounts. It lets you save multiple account names, view rank information, add notes, and organize everything in one place.
 
-Currently, two official plugins are available:
+> 🛑 **This app does not store or check any passwords.**  
+> Everything runs locally on your machine. No data is sent or stored online.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🔒 Privacy First
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- No login required
+- No external database or API
+- No Riot credentials are ever stored or requested
+- All data stays on your computer
+
+---
+
+## 🧰 Tech Stack
+
+Distort is built using a modern full-stack setup designed for speed, security, and portability:
+
+- **Frontend**: React + Vite + Tailwind CSS
+- **Backend**: Node.js + Express + SQLite (local database)
+- **Desktop Shell**: [Tauri](https://tauri.app/) (lightweight and secure)
+- **Package Management**: npm + Cargo (for Tauri)
+
+The project is fully open source and designed to be transparent and hackable — ideal for tinkerers and privacy-conscious players.
+
+---
+
+## 📁 Project Structure
+
+distort/
+├── src/ # React frontend
+├── server/ # Express backend with SQLite
+├── src-tauri/ # Tauri configuration and native build files
+├── icons/ # App icons
+├── package.json
+
+---
+
+## 📝 License
+
+MIT License.  
+This project is not affiliated with Riot Games and does not access private account data. It is built for **local use only** and uses the Riot API solely for public information retrieval.
