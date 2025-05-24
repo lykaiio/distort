@@ -1,52 +1,93 @@
-const express = require("express");
-const bcrypt = require("bcrypt");
-const { getSummonerByRiotId, getRankedStats } = require("../utils/riotAPI");
-const { getDB } = require("../db/database");
+import express from "express";
+import { getSummonerByRiotId, getRankedStats } from "../utils/riotAPI.js";
+import { encrypt } from "../utils/crypto.js";
+import { getDB } from "../db/database.js";
 
 const router = express.Router();
 
-// GET all accounts
+// Get all accounts - THIS WAS MISSING!
 router.get("/", async (req, res) => {
   try {
-    const db = await getDB();
+    const db = getDB();
     const accounts = await db.all("SELECT * FROM accounts");
+
+    console.log("📤 Sending accounts to frontend:", accounts);
     res.json(accounts);
   } catch (err) {
-    console.error("Error fetching accounts:", err);
+    console.error("❌ Error fetching accounts:", err);
     res.status(500).json({ error: "Failed to fetch accounts" });
   }
 });
 
-// server/routes/accounts.js
+// Refresh accounts with updated rank info
 router.get("/refresh", async (req, res) => {
   try {
+    const db = getDB();
     const accounts = await db.all("SELECT * FROM accounts");
 
     const updatedAccounts = await Promise.all(
       accounts.map(async (account) => {
-        const stats = await getSummonerStats(account.riotId, account.region);
-        if (stats) {
+        try {
+          const [name, tag] = account.riotId.split("#");
+          const summonerInfo = await getSummonerByRiotId(
+            name,
+            tag,
+            account.region
+          );
+          const rankedStats = await getRankedStats(
+            summonerInfo.id,
+            account.region
+          );
+
+          const soloQueue = rankedStats.find(
+            (queue) => queue.queueType === "RANKED_SOLO_5x5"
+          );
+
+          const rank = soloQueue
+            ? `${soloQueue.tier} ${soloQueue.rank}`
+            : "Unranked";
+          const lp = soloQueue ? `${soloQueue.leaguePoints} LP` : "0 LP";
+          const winRate = soloQueue
+            ? `${Math.round(
+                (soloQueue.wins / (soloQueue.wins + soloQueue.losses)) * 100
+              )}%`
+            : "0%";
+
+          const tier = soloQueue
+            ? soloQueue.tier.charAt(0).toUpperCase() +
+              soloQueue.tier.slice(1).toLowerCase()
+            : "Unranked";
+
+          const imageSrc = `/assets/ranks/${tier}.webp`;
+
+          // Update database
           await db.run(
             "UPDATE accounts SET rank = ?, lp = ?, winRate = ?, imageSrc = ? WHERE id = ?",
-            stats.rank,
-            stats.lp,
-            stats.winRate,
-            stats.imageSrc,
-            account.id
+            [rank, lp, winRate, imageSrc, account.id]
           );
+
+          return {
+            ...account,
+            rank,
+            lp,
+            winRate,
+            imageSrc,
+          };
+        } catch (err) {
+          console.error(`Failed to refresh account ${account.id}:`, err);
+          return account; // Return original data if refresh fails
         }
-        return { ...account, ...stats };
       })
     );
 
     res.json(updatedAccounts);
   } catch (err) {
-    console.error("Failed to refresh accounts:", err);
+    console.error("❌ Error refreshing accounts:", err);
     res.status(500).json({ error: "Failed to refresh accounts" });
   }
 });
 
-// POST new account
+// Add new account
 router.post("/", async (req, res) => {
   const { login, riotId, region, password } = req.body;
   console.log("📥 Received request to add account:", req.body);
@@ -59,8 +100,8 @@ router.post("/", async (req, res) => {
     const [name, tag] = riotId.split("#");
     const summonerInfo = await getSummonerByRiotId(name, tag, region);
     const puuid = summonerInfo.puuid;
-
     const rankedStats = await getRankedStats(summonerInfo.id, region);
+
     const soloQueue = rankedStats.find(
       (queue) => queue.queueType === "RANKED_SOLO_5x5"
     );
@@ -77,22 +118,24 @@ router.post("/", async (req, res) => {
       ? soloQueue.tier.charAt(0).toUpperCase() +
         soloQueue.tier.slice(1).toLowerCase()
       : "Unranked";
+
     const imageSrc = `/assets/ranks/${tier}.webp`;
+    const encryptedPassword = encrypt(password);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const db = await getDB();
+    const db = getDB();
     const result = await db.run(
       `INSERT INTO accounts (login, riotId, region, password, rank, lp, winRate, imageSrc)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [login, riotId, region, hashedPassword, rank, lp, winRate, imageSrc]
+      [login, riotId, region, encryptedPassword, rank, lp, winRate, imageSrc]
     );
 
+    // FIXED: Include encrypted password in response
     res.status(201).json({
       id: result.lastID,
       login,
       riotId,
       region,
+      password: encryptedPassword, // <-- ADD THIS LINE
       rank,
       lp,
       winRate,
@@ -104,20 +147,17 @@ router.post("/", async (req, res) => {
   }
 });
 
-// DELETE account by ID
+// Delete an account
 router.delete("/:id", async (req, res) => {
-  const { id } = req.params;
   try {
-    const db = await getDB();
-    const result = await db.run("DELETE FROM accounts WHERE id = ?", [id]);
-    if (result.changes === 0) {
-      return res.status(404).json({ error: "Account not found" });
-    }
-    res.status(200).json({ success: true });
+    const db = getDB();
+    const { id } = req.params;
+    await db.run("DELETE FROM accounts WHERE id = ?", [id]);
+    res.sendStatus(204);
   } catch (err) {
-    console.error("Error deleting account:", err);
+    console.error("Failed to delete account:", err);
     res.status(500).json({ error: "Failed to delete account" });
   }
 });
 
-module.exports = router;
+export default router;

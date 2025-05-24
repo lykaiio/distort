@@ -1,6 +1,7 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+import axios from "axios";
 
-const axios = require("axios");
+dotenv.config();
 
 const RIOT_API_KEY = process.env.RIOT_API_KEY;
 
@@ -8,7 +9,6 @@ const headers = {
   "X-Riot-Token": RIOT_API_KEY,
 };
 
-// Mapping user-friendly region codes to Riot's platform routing codes
 const regionToPlatform = {
   NA: "na1",
   EUW: "euw1",
@@ -23,9 +23,8 @@ const regionToPlatform = {
   JP: "jp1",
 };
 
-async function getSummonerByRiotId(gameName, tagLine, region) {
+export async function getSummonerByRiotId(gameName, tagLine, region) {
   try {
-    // Step 1: Get puuid from Riot ID (always uses AMERICAS routing)
     const accountRes = await axios.get(
       `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${gameName}/${tagLine}`,
       { headers }
@@ -33,7 +32,6 @@ async function getSummonerByRiotId(gameName, tagLine, region) {
 
     const { puuid } = accountRes.data;
 
-    // Step 2: Use platform routing (e.g., na1, euw1) to get summoner details
     const platform = regionToPlatform[region.toUpperCase()];
     if (!platform) throw new Error(`Unknown region: ${region}`);
 
@@ -52,7 +50,7 @@ async function getSummonerByRiotId(gameName, tagLine, region) {
   }
 }
 
-async function getRankedStats(summonerId, region) {
+export async function getRankedStats(summonerId, region) {
   const platform = regionToPlatform[region.toUpperCase()];
   if (!platform) throw new Error(`Unknown region: ${region}`);
 
@@ -63,8 +61,3 @@ async function getRankedStats(summonerId, region) {
 
   return response.data;
 }
-
-module.exports = {
-  getSummonerByRiotId,
-  getRankedStats,
-};

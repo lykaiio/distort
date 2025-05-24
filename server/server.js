@@ -1,24 +1,20 @@
-require("dotenv").config();
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { init } from "./db/database.js";
+import accountsRouter from "./routes/accounts.js";
 
-const express = require("express");
-const cors = require("cors");
-const { init } = require("./db/database");
-const accountsRouter = require("./routes/accounts");
+dotenv.config();
+init();
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Initialize database
-init();
-
-// Route for accounts
 app.use("/api/accounts", accountsRouter);
 
-// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
