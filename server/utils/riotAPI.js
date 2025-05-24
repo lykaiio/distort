@@ -1,6 +1,8 @@
+require("dotenv").config();
+
 const axios = require("axios");
 
-const RIOT_API_KEY = "RGAPI-18f47670-ed23-454c-9359-245eeaf1875d";
+const RIOT_API_KEY = process.env.RIOT_API_KEY;
 
 const headers = {
   "X-Riot-Token": RIOT_API_KEY,

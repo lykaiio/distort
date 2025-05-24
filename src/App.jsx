@@ -1,4 +1,5 @@
 import axios from "axios";
+import { encrypt, decrypt } from "./utils/cryptoUtils.js";
 import { useState, useEffect } from "react";
 import AccountCard from "./components/AccountCard";
 import ThemedInput from "./components/ThemedInput";
@@ -36,7 +37,7 @@ const App = () => {
       login: newLogin,
       riotId: `${newRiotId}#${newTag}`,
       region: newRegion,
-      password: newPassword,
+      password: encrypt(newPassword),
       rank: "Unranked",
       lp: "0 LP",
       winRate: "0%",
@@ -63,7 +64,11 @@ const App = () => {
       });
   };
 
-  const handleCopy = (text) => navigator.clipboard.writeText(text);
+  const handleCopy = (text, isPassword = false) => {
+    const value = isPassword ? decrypt(text) : text;
+    navigator.clipboard.writeText(value);
+  };
+
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this account?")) {
       axios
@@ -75,6 +80,18 @@ const App = () => {
           console.error("Failed to delete account:", err);
         });
     }
+  };
+
+  const refreshAccounts = () => {
+    axios
+      .get("http://localhost:4000/api/accounts/refresh")
+      .then((res) => {
+        console.log("Refreshed account data:", res.data);
+        setAccounts(res.data);
+      })
+      .catch((err) => {
+        console.error("Failed to refresh accounts:", err);
+      });
   };
 
   return (
@@ -110,7 +127,11 @@ const App = () => {
             onClick={toggleTheme}
             isDarkMode={isDarkMode}
           />
-          <ThemedButton text="⟳" onClick={() => {}} isDarkMode={isDarkMode} />
+          <ThemedButton
+            text="⟳"
+            onClick={refreshAccounts}
+            isDarkMode={isDarkMode}
+          />
         </div>
       </div>
 

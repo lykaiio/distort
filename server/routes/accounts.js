@@ -17,9 +17,39 @@ router.get("/", async (req, res) => {
   }
 });
 
+// server/routes/accounts.js
+router.get("/refresh", async (req, res) => {
+  try {
+    const accounts = await db.all("SELECT * FROM accounts");
+
+    const updatedAccounts = await Promise.all(
+      accounts.map(async (account) => {
+        const stats = await getSummonerStats(account.riotId, account.region);
+        if (stats) {
+          await db.run(
+            "UPDATE accounts SET rank = ?, lp = ?, winRate = ?, imageSrc = ? WHERE id = ?",
+            stats.rank,
+            stats.lp,
+            stats.winRate,
+            stats.imageSrc,
+            account.id
+          );
+        }
+        return { ...account, ...stats };
+      })
+    );
+
+    res.json(updatedAccounts);
+  } catch (err) {
+    console.error("Failed to refresh accounts:", err);
+    res.status(500).json({ error: "Failed to refresh accounts" });
+  }
+});
+
 // POST new account
 router.post("/", async (req, res) => {
   const { login, riotId, region, password } = req.body;
+  console.log("📥 Received request to add account:", req.body);
 
   if (!login || !riotId || !region || !password) {
     return res.status(400).json({ error: "Missing required fields" });
